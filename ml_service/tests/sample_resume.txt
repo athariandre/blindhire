@@ -1,0 +1,30 @@
+Andre Athari
+Email: andre.athari@email.com
+Phone: (555) 123-4567
+
+EDUCATION
+MIT - Master of Science in Computer Science, 2023
+Stanford University - Bachelor of Science in Computer Science, 2021
+
+EXPERIENCE
+Software Engineer at TechCorp (2021-2023)
+- Developed machine learning models using Python and TensorFlow
+- Built scalable web applications with React and Node.js
+- Worked with SQL databases and cloud infrastructure on AWS
+- Implemented data structures and algorithms for performance optimization
+
+Data Scientist Intern at DataInc (Summer 2020)
+- Analyzed large datasets using Python, pandas, and scikit-learn
+- Created predictive models for customer behavior
+- Collaborated with cross-functional teams on product development
+
+SKILLS
+Programming Languages: Python, JavaScript, Java, SQL
+Frameworks: React, TensorFlow, scikit-learn, FastAPI
+Tools: Git, Docker, AWS, PostgreSQL
+Concepts: Machine Learning, Data Structures, Algorithms, System Design
+
+PROJECTS
+Recommendation System - Built a collaborative filtering system using Python
+Web Application - Created a full-stack application with React and FastAPI
+Data Pipeline - Designed ETL pipeline for processing large datasets

@@ -3,3 +3,5 @@ uvicorn
 sentence-transformers
 numpy
 PyPDF2
+scikit-learn
+google-generativeai
