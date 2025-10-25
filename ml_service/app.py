@@ -16,13 +16,14 @@ app = FastAPI(title="BlindHire ML Microservice", version="1.0.0")
 async def startup_event():
     """
     Load the ML model on startup for efficiency
+    Note: Model will be lazy-loaded on first request if not available on startup
     """
     try:
         load_model()
         print("Model loaded successfully")
     except Exception as e:
-        print(f"Error loading model: {e}")
-        raise e
+        print(f"Warning: Model not loaded on startup: {e}")
+        print("Model will be loaded on first request")
 
 
 # request/response models
@@ -129,9 +130,14 @@ async def health():
     """
     Health check endpoint used by the backend to verify model readiness.
     """
+    use_fallback = os.environ.get('ML_USE_FALLBACK', 'true').lower() == 'true'
+    model_name = "sentence-transformers/all-MiniLM-L6-v2"
+    if use_fallback:
+        model_name += " (using TF-IDF fallback for testing)"
+    
     return HealthResponse(
         status="ok",
-        model="sentence-transformers/all-MiniLM-L6-v2"
+        model=model_name
     )
 
 
