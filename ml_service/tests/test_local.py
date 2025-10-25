@@ -1,6 +1,10 @@
 import requests
 import json
 import os
+import sys
+
+# Import Gemini testing framework
+from test_gemini_anonymization import GeminiAnonymizationTester
 
 
 def test_parse_and_score():
@@ -92,12 +96,76 @@ def test_explain_terms():
             print("Response:", json.dumps(result, indent=2))
             assert "top_terms" in result
             assert isinstance(result["top_terms"], list)
-            print("✅ Explain terms working")
-        else:
-            print("Error:", response.text)
             
     except requests.exceptions.ConnectionError:
         print("❌ Could not connect to ML service")
+
+
+def test_gemini_anonymization():
+    """
+    Test Gemini-powered anonymization functionality
+    """
+    print("\n🧠 Testing Gemini Anonymization...")
+    
+    # Quick anonymization test with known PII
+    test_text = "John Smith from MIT, email john@email.com, skilled in Python and React."
+    
+    try:
+        # Test direct anonymization
+        sys.path.append('..')
+        from parser import anonymize_resume
+        
+        anonymized = anonymize_resume(test_text)
+        
+        # Check that PII is removed but skills preserved
+        pii_removed = "john" not in anonymized.lower() and "smith" not in anonymized.lower()
+        skills_preserved = "python" in anonymized.lower() and "react" in anonymized.lower()
+        school_anonymized = "[TARGET_SCHOOL]" in anonymized.lower()
+        
+        if pii_removed and skills_preserved and school_anonymized:
+            print("✅ Gemini anonymization working correctly")
+            print(f"  Original: {test_text[:50]}...")
+            print(f"  Anonymized: {anonymized[:50]}...")
+            return True
+        else:
+            print("❌ Gemini anonymization issues detected")
+            print(f"  PII removed: {pii_removed}")
+            print(f"  Skills preserved: {skills_preserved}")
+            print(f"  School anonymized: {school_anonymized}")
+            print(f"  Result: {anonymized}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error testing anonymization: {str(e)}")
+        return False
+
+
+def test_config_and_api_key():
+    """
+    Test that Gemini API key is properly configured
+    """
+    print("\n🔑 Testing Configuration...")
+    
+    try:
+        sys.path.append('..')
+        from config import validate_config, GEMINI_API_KEY
+        
+        # Test API key presence
+        has_key = GEMINI_API_KEY is not None and len(GEMINI_API_KEY.strip()) > 0
+        config_valid = validate_config()
+        
+        if has_key and config_valid:
+            print("✅ Gemini API key configured correctly")
+            return True
+        else:
+            print("❌ Configuration issues:")
+            print(f"  Has API key: {has_key}")
+            print(f"  Config valid: {config_valid}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Configuration error: {str(e)}")
+        return False
 
 
 def test_deterministic_output():
@@ -148,12 +216,36 @@ def test_deterministic_output():
 
 
 if __name__ == "__main__":
-    print("🧪 Testing ML Microservice")
-    print("=" * 40)
+    print("🧪 Testing ML Microservice with Gemini Integration")
+    print("=" * 55)
     
+    # Test configuration first
+    config_ok = test_config_and_api_key()
+    
+    # Test basic service functionality
     test_health()
     test_parse_and_score()
     test_explain_terms()
     test_deterministic_output()
     
-    print("\n🎉 Tests completed!")
+    # Test Gemini-specific functionality
+    gemini_ok = test_gemini_anonymization()
+    
+    # Optionally run comprehensive Gemini tests
+    print("\n" + "=" * 55)
+    print("🔬 Running Comprehensive Gemini Test Suite...")
+    
+    try:
+        gemini_tester = GeminiAnonymizationTester()
+        gemini_results = gemini_tester.run_all_tests()
+        
+        print(f"\n📈 Overall Results:")
+        print(f"  Configuration: {'✅' if config_ok else '❌'}")
+        print(f"  Basic Anonymization: {'✅' if gemini_ok else '❌'}")
+        print(f"  Comprehensive Tests: {'✅' if gemini_results['all_passed'] else '❌'}")
+        print(f"  Success Rate: {gemini_results['success_rate']:.1f}%")
+        
+    except Exception as e:
+        print(f"❌ Could not run comprehensive tests: {str(e)}")
+    
+    print("\n🎉 All tests completed!")
