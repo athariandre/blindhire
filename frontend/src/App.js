@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import Home from './components/Home';
 import Status from './components/Status';
 import Recruiter from './components/Recruiter';
+import MyApplications from './components/MyApplications';
 import { walletService } from './utils/wallet';
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
         <main className="pb-12">
           <Routes>
             <Route path="/" element={<Home walletConnected={walletConnected} walletAddress={walletAddress} />} />
+            <Route path="/my-applications" element={<MyApplications walletConnected={walletConnected} walletAddress={walletAddress} />} />
             <Route path="/status" element={<Status walletConnected={walletConnected} walletAddress={walletAddress} />} />
             <Route path="/recruiter" element={<Recruiter walletConnected={walletConnected} walletAddress={walletAddress} />} />
           </Routes>
@@ -99,6 +101,14 @@ function Navbar({ walletConnected, walletAddress, onConnectWallet }) {
                 }`}
               >
                 Home
+              </Link>
+              <Link 
+                to="/my-applications" 
+                className={`text-sm font-medium transition-colors ${
+                  isActive('/my-applications') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                My Applications
               </Link>
               <Link 
                 to="/status" 

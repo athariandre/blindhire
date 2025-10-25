@@ -3,10 +3,12 @@ import { apiService } from '../utils/api';
 
 function Recruiter({ walletConnected, walletAddress }) {
   const [submissions, setSubmissions] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showCreateJob, setShowCreateJob] = useState(false);
+  const [activeTab, setActiveTab] = useState('jobs'); // 'jobs' or 'submissions'
   const [newJob, setNewJob] = useState({
     title: '',
     description: '',
@@ -16,20 +18,33 @@ function Recruiter({ walletConnected, walletAddress }) {
   });
 
   useEffect(() => {
-    fetchSubmissions();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    await Promise.all([fetchSubmissions(), fetchJobs()]);
+    setLoading(false);
+  };
 
   const fetchSubmissions = async () => {
     try {
-      setLoading(true);
-      // This would be a new endpoint to get all submissions for the recruiter
       const response = await apiService.getRecruiterSubmissions();
-      setSubmissions(response.data || []);
+      setSubmissions(response.submissions || []);
       setError(null);
     } catch (err) {
-      setError(err.response?.data?.detail || err.message || 'Failed to fetch submissions');
-    } finally {
-      setLoading(false);
+      console.error('Failed to fetch submissions:', err);
+      setSubmissions([]);
+    }
+  };
+
+  const fetchJobs = async () => {
+    try {
+      const response = await apiService.getAllJobs();
+      setJobs(response.jobs || []);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch jobs:', err);
     }
   };
 
@@ -47,7 +62,7 @@ function Recruiter({ walletConnected, walletAddress }) {
   const handleCreateJob = async (e) => {
     e.preventDefault();
     try {
-      await apiService.createJob(newJob);
+      const response = await apiService.createJob(newJob);
       setShowCreateJob(false);
       setNewJob({
         title: '',
@@ -56,30 +71,34 @@ function Recruiter({ walletConnected, walletAddress }) {
         location: '',
         salary: ''
       });
-      // Refresh submissions to show new job
-      fetchSubmissions();
+      // Refresh jobs to show new job
+      await fetchJobs();
+      // Show success message with job ID
+      alert(`Job created successfully! Job ID: ${response.job_id}\n\nShare this Job ID with candidates so they can apply.`);
     } catch (err) {
       setError(err.response?.data?.detail || err.message || 'Failed to create job');
     }
   };
 
+  const copyJobId = (jobId) => {
+    navigator.clipboard.writeText(jobId);
+    alert(`Job ID copied: ${jobId}`);
+  };
+
   const getScoreBadge = (score) => {
-    if (score >= 80) return { color: 'bg-green-100 text-green-800', text: 'High' };
-    if (score >= 60) return { color: 'bg-yellow-100 text-yellow-800', text: 'Medium' };
+    // Convert decimal score (0.0-1.0) to percentage
+    const percentage = score * 100;
+    if (percentage >= 80) return { color: 'bg-green-100 text-green-800', text: 'High' };
+    if (percentage >= 60) return { color: 'bg-yellow-100 text-yellow-800', text: 'Medium' };
     return { color: 'bg-red-100 text-red-800', text: 'Low' };
   };
 
-  const getBucketBadge = (bucket) => {
-    switch (bucket?.toLowerCase()) {
-      case 'high':
-        return { color: 'bg-green-100 text-green-800', text: 'High' };
-      case 'medium':
-        return { color: 'bg-yellow-100 text-yellow-800', text: 'Medium' };
-      case 'low':
-        return { color: 'bg-red-100 text-red-800', text: 'Low' };
-      default:
-        return { color: 'bg-gray-100 text-gray-800', text: 'Unknown' };
-    }
+  const getBucketFromScore = (score) => {
+    // Convert decimal score (0.0-1.0) to bucket
+    const percentage = score * 100;
+    if (percentage >= 80) return { color: 'bg-green-100 text-green-800', text: 'High' };
+    if (percentage >= 60) return { color: 'bg-yellow-100 text-yellow-800', text: 'Medium' };
+    return { color: 'bg-red-100 text-red-800', text: 'Low' };
   };
 
   const getStatusBadge = (status) => {
@@ -113,7 +132,7 @@ function Recruiter({ walletConnected, walletAddress }) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Recruiter Dashboard</h1>
-            <p className="mt-2 text-gray-600">Manage job applications and review candidates</p>
+            <p className="mt-2 text-gray-600">Manage jobs and review applications</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <button 
@@ -143,30 +162,138 @@ function Recruiter({ walletConnected, walletAddress }) {
           </div>
         )}
 
-        {/* Submissions Table */}
-        <div className="card">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Submissions</h2>
-            <p className="mt-1 text-gray-600">Review and manage candidate applications</p>
-          </div>
-          
-          {submissions.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-gray-100 rounded-full">
-                <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No submissions yet</h3>
-              <p className="text-gray-600 mb-4">Create a job to start receiving applications.</p>
-              <button 
-                className="btn btn-primary"
-                onClick={() => setShowCreateJob(true)}
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('jobs')}
+                className={`${
+                  activeTab === 'jobs'
+                    ? 'border-primary-600 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
               >
-                Create Your First Job
+                My Jobs ({jobs.length})
               </button>
+              <button
+                onClick={() => setActiveTab('submissions')}
+                className={`${
+                  activeTab === 'submissions'
+                    ? 'border-primary-600 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              >
+                Applications ({submissions.length})
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Jobs Table */}
+        {activeTab === 'jobs' && (
+          <div className="card">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">My Jobs</h2>
+              <p className="mt-1 text-gray-600">View and manage your job postings</p>
             </div>
-          ) : (
+            
+            {jobs.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-gray-100 rounded-full">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs yet</h3>
+                <p className="text-gray-600 mb-4">Create your first job to start receiving applications.</p>
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => setShowCreateJob(true)}
+                >
+                  Create Your First Job
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Job ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Title
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Location
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {jobs.map((job) => (
+                        <tr key={job.job_id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center space-x-2">
+                              <code className="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded">
+                                {job.job_id}
+                              </code>
+                              <button
+                                onClick={() => copyJobId(job.job_id)}
+                                className="text-primary-600 hover:text-primary-800"
+                                title="Copy Job ID"
+                              >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-gray-900">{job.title}</div>
+                            <div className="text-sm text-gray-500">{job.description?.slice(0, 50)}...</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="text-sm text-gray-900">{job.location || 'Not specified'}</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button className="text-primary-600 hover:text-primary-900">
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Submissions Table */}
+        {activeTab === 'submissions' && (
+          <div className="card">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Applications</h2>
+              <p className="mt-1 text-gray-600">Review and manage candidate applications</p>
+            </div>
+          
+            {submissions.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-gray-100 rounded-full">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
+                <p className="text-gray-600 mb-4">Applications will appear here once candidates apply to your jobs.</p>
+              </div>
+            ) : (
             <div className="overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -192,8 +319,9 @@ function Recruiter({ walletConnected, walletAddress }) {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {submissions.map((submission) => {
                       const scoreBadge = getScoreBadge(submission.score);
-                      const bucketBadge = getBucketBadge(submission.bucket);
+                      const bucketBadge = getBucketFromScore(submission.score);
                       const statusBadge = getStatusBadge(submission.status);
+                      const percentage = (submission.score * 100).toFixed(1);
                       
                       return (
                         <tr key={submission.submission_id} className="hover:bg-gray-50">
@@ -204,7 +332,7 @@ function Recruiter({ walletConnected, walletAddress }) {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${scoreBadge.color}`}>
-                              {submission.score}/100
+                              {percentage}%
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -242,8 +370,9 @@ function Recruiter({ walletConnected, walletAddress }) {
                 </table>
               </div>
             </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Submission Details Modal */}

@@ -56,7 +56,7 @@ export const apiService = {
 
   // Admin accept submission
   async acceptSubmission(submissionId) {
-    const response = await api.post('/api/admin/accept', {
+    const response = await api.post('/api/accept', {
       submission_id: submissionId
     });
     return response.data;
@@ -83,15 +83,19 @@ export const apiService = {
     return response.data;
   },
 
-  // Get recruiter's public key for encryption
-  async getRecruiterPublicKey(jobId) {
-    const response = await api.get(`/api/job/${jobId}/public-key`);
+  // Get recruiter submissions
+  async getRecruiterSubmissions(jobId = null, walletAddress = null) {
+    const params = {};
+    if (jobId) params.job_id = jobId;
+    if (walletAddress) params.wallet_address = walletAddress;
+    
+    const response = await api.get('/api/submissions', { params });
     return response.data;
   },
 
-  // Get recruiter submissions
-  async getRecruiterSubmissions() {
-    const response = await api.get('/api/recruiter/submissions');
+  // Get all jobs
+  async getAllJobs() {
+    const response = await api.get('/api/jobs');
     return response.data;
   }
 };

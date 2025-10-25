@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from services.blockchain_client import mark_accepted, create_job_contract
-from services.db import save_job, get_job_summary
+from services.db import save_job, get_job_summary, get_all_jobs, get_submissions_by_job, get_submissions_by_wallet
 
 router = APIRouter()
 
@@ -41,3 +41,18 @@ async def job_summary(job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail="Job not found.")
     return job
+
+@router.get("/jobs")
+async def list_jobs():
+    """Get all jobs created by recruiters"""
+    jobs = get_all_jobs()
+    return {"jobs": jobs}
+
+@router.get("/submissions")
+async def list_submissions(job_id: str = Query(None), wallet_address: str = Query(None)):
+    """Get all submissions, optionally filtered by job_id or wallet_address"""
+    if wallet_address:
+        submissions = get_submissions_by_wallet(wallet_address)
+    else:
+        submissions = get_submissions_by_job(job_id)
+    return {"submissions": submissions}

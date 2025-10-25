@@ -35,7 +35,7 @@ async def apply(
     submission_id = keccak256(wallet_address + job_id + ml_result["resume_hash"])
 
     # ✅ Record evaluation on blockchain
-    tx_hash = await record_evaluation(submission_id, ml_result, wallet_address, enc_email)
+    tx_hash = await record_evaluation(submission_id, ml_result, wallet_address, job_id, enc_email)
 
     # ✅ Return result to frontend
     return {
