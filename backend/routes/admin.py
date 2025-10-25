@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from services.blockchain_client import mark_accepted, create_job_contract
+from services.blockchain_service import mark_accepted, create_job_contract
 from services.db import save_job, get_job_summary, get_all_jobs, get_submissions_by_job, get_submissions_by_wallet
 
 router = APIRouter()

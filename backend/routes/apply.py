@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, Form, HTTPException
 from services.ml_client import call_ml_service
-from services.blockchain_client import record_evaluation
+from services.blockchain_service import record_evaluation
 from utils.hash import keccak256
 from PyPDF2 import PdfReader
 import io

@@ -179,12 +179,12 @@ function Status({ walletConnected, walletAddress }) {
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Transaction Hash</h3>
                   <a 
-                    href={`https://sepolia.etherscan.io/tx/${status.tx_hash}`}
+                    href={`https://sepolia.etherscan.io/tx/${status.tx_hash.startsWith('0x') ? status.tx_hash : '0x' + status.tx_hash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-sm font-mono text-primary-600 hover:text-primary-700 bg-gray-100 px-3 py-1 rounded"
                   >
-                    {status.tx_hash.slice(0, 10)}...{status.tx_hash.slice(-8)}
+                    {status.tx_hash.startsWith('0x') ? status.tx_hash.slice(0, 10) : '0x' + status.tx_hash.slice(0, 8)}...{status.tx_hash.slice(-8)}
                     <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>

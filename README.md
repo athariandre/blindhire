@@ -1,42 +1,91 @@
 # BlindHire - Provably Fair AI Resume Screening
 
-A blockchain-verified, bias-free hiring platform that ensures transparent and fair resume screening.
+A blockchain-verified, bias-free hiring platform that ensures transparent and fair resume screening using smart contracts on Sepolia testnet.
 
-## 🚀 Quick Start
+## 🎯 What is BlindHire?
+
+BlindHire eliminates bias in hiring by:
+- 🤖 **AI-Powered Screening**: Anonymous resume analysis
+- 🔗 **Blockchain Verification**: All decisions recorded on-chain
+- 🔒 **Cryptographic Commitments**: Tamper-proof evaluations
+- 👤 **Privacy-First**: Resume data anonymized before processing
+- ✅ **Transparent**: Every decision is publicly auditable
+
+## 🏗️ Architecture
+
+```
+Frontend (React + TailwindCSS)
+    ↓
+Backend (FastAPI + Python)
+    ↓
+Smart Contracts (Solidity + Hardhat)
+    ↓
+Sepolia Testnet
+```
+
+## 🚀 Quick Start (5 Minutes)
+
+### Automated Setup
+
+**Windows:**
+```cmd
+setup_env.bat
+```
+
+**Mac/Linux:**
+```bash
+chmod +x setup_env.sh
+./setup_env.sh
+```
+
+### Manual Setup
 
 ### Prerequisites
-- Node.js (for frontend)
+- Node.js 18+ (for frontend & contracts)
 - Python 3.8+ (for backend)
 - MetaMask browser extension
+- Sepolia ETH ([Get from faucet](https://sepoliafaucet.com/))
 
-### Backend Setup
-1. Install Python dependencies:
+### 1. Environment Configuration
+
+Create `.env` file in project root:
+
 ```bash
-pip install -r backend/requirements.txt
+# Blockchain Configuration
+SEPOLIA_RPC_URL=https://rpc.sepolia.org
+PRIVATE_KEY=your_wallet_private_key_here
+FACTORY_CONTRACT_ADDRESS=0x04E2AF7018Eada81e583425A4eB6Da6b1f116c7d
+
+# Optional
+ETHERSCAN_API_KEY=your_etherscan_api_key
 ```
 
-2. Start the backend server:
+### 2. Backend Setup
+
 ```bash
+# Install Python dependencies
+pip install -r backend/requirements.txt
+
+# Start backend server
 python start_backend.py
 ```
-The backend will run on `http://localhost:8000`
 
-### Frontend Setup
-1. Navigate to frontend directory:
+Backend runs on `http://localhost:8000`
+
+### 3. Frontend Setup
+
 ```bash
+# Navigate to frontend
 cd frontend
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
-```
 
-3. Start the React development server:
-```bash
+# Start React development server
 npm start
 ```
-The frontend will run on `http://localhost:3000`
+
+Frontend runs on `http://localhost:3000`
 
 ## 🔧 API Endpoints
 
@@ -65,25 +114,85 @@ The frontend will run on `http://localhost:3000`
 - **Privacy-Preserving**: Personal data is anonymized
 - **Web3 Integration**: MetaMask wallet connection
 
-## 🏗️ Architecture
+## 📜 Smart Contracts
 
-- **Frontend**: React + Tailwind CSS
-- **Backend**: FastAPI + Python
-- **Blockchain**: Ethereum (Sepolia testnet)
+### Deployed on Sepolia Testnet
+
+| Contract | Address | Purpose |
+|----------|---------|---------|
+| JobFactory | `0x04E2AF7018Eada81e583425A4eB6Da6b1f116c7d` | Deploy job contracts |
+| JobContract | Dynamic | Store evaluations per job |
+
+**View on Etherscan:**  
+https://sepolia.etherscan.io/address/0x04E2AF7018Eada81e583425A4eB6Da6b1f116c7d
+
+### Contract Architecture
+
+Each job gets its own contract that stores:
+- ✅ Resume hashes (SHA256)
+- ✅ Model hashes (AI version)
+- ✅ Score hashes (evaluation results)
+- ✅ Timestamps (when evaluated)
+- ✅ Encrypted email hashes (optional)
+
+### Verification
+
+Anyone can verify their results:
+```javascript
+const verified = await jobContract.verifyEvaluation(
+  submissionId,
+  resumeHash,
+  modelHash,
+  scoreHash
+);
+// Returns: true if evaluation matches blockchain
+```
+
+## 🏗️ Tech Stack
+
+- **Frontend**: React + Tailwind CSS + Ethers.js
+- **Backend**: FastAPI + Python + Web3.py
+- **Smart Contracts**: Solidity + Hardhat
+- **Blockchain**: Ethereum Sepolia Testnet
 - **ML Service**: Resume analysis and scoring
 
 ## 📱 Usage
 
-1. Connect your MetaMask wallet
-2. Upload your resume (PDF only)
-3. Enter job ID
-4. Get AI screening results
-5. View blockchain verification
-6. Claim position if accepted
+### For Candidates:
 
-## 🔒 Security
+1. **Connect MetaMask** → Switch to Sepolia testnet
+2. **Get Job ID** → From recruiter
+3. **Upload Resume** → PDF format only
+4. **Submit** → AI analyzes in 2-3 seconds
+5. **View Results** → Score, decision, blockchain TX
+6. **Track Status** → "My Applications" page
+7. **Claim Position** → Sign with MetaMask if accepted
 
-- All resume data is anonymized before AI screening
-- Blockchain records ensure decision integrity
-- Wallet signatures verify claim authenticity
-- No personal data stored permanently
+### For Recruiters:
+
+1. **Connect MetaMask** → Switch to Sepolia testnet
+2. **Create Job** → Fill job details
+3. **Get Job ID** → Copy and share with candidates
+4. **Review Applications** → See all submissions
+5. **Accept/Reject** → Make decisions
+6. **Track Submissions** → Monitor status
+
+## 🔒 Security & Privacy
+
+### Privacy
+- ✅ Resume anonymized before AI processing
+- ✅ No PII sent to ML service
+- ✅ Original PDF not stored
+- ✅ Optional encrypted email
+
+### Security
+- ✅ All evaluations on blockchain (tamper-proof)
+- ✅ Cryptographic commitments (SHA256 hashes)
+- ✅ MetaMask signature verification
+- ✅ Open-source and auditable
+
+### Fairness
+- ✅ AI decisions recorded before applicant sees results
+- ✅ Cannot change evaluation after commitment
+- ✅ Transparent and verifiable
+- ✅ No human bias in screening

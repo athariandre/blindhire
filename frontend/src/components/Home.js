@@ -168,19 +168,16 @@ function Home({ walletConnected, walletAddress }) {
                 </div>
 
                 <div>
-                  <label htmlFor="encEmail" className="label">Encrypted Email (Optional)</label>
+                  <label htmlFor="encEmail" className="label">Email</label>
                   <input
                     type="text"
                     id="encEmail"
                     value={encEmail}
                     onChange={(e) => setEncEmail(e.target.value)}
-                    placeholder="Enter encrypted email if provided by recruiter"
+                    placeholder="Enter your email"
                     className="input"
                     disabled={!walletConnected}
                   />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Only if the recruiter provided encryption instructions
-                  </p>
                 </div>
 
                 {error && (
@@ -236,7 +233,7 @@ function Home({ walletConnected, walletAddress }) {
                         <div className="flex justify-between">
                           <span className="font-medium text-gray-700">Transaction:</span>
                           <a 
-                            href={`https://sepolia.etherscan.io/tx/${result.tx_hash}`}
+                            href={`https://sepolia.etherscan.io/tx/${result.tx_hash.startsWith('0x') ? result.tx_hash : '0x' + result.tx_hash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="font-mono text-primary-600 hover:text-primary-700 text-xs"

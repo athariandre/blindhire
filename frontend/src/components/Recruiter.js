@@ -392,6 +392,33 @@ function Recruiter({ walletConnected, walletAddress }) {
             </div>
             
             <div className="p-6">
+              {/* Candidate Email Section */}
+              {selectedSubmission.email && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
+                    📧 Candidate Email
+                  </label>
+                  <div className="flex items-center justify-between">
+                    <a 
+                      href={`mailto:${selectedSubmission.email}`}
+                      className="text-primary-600 hover:text-primary-700 font-medium text-lg transition-colors"
+                    >
+                      {selectedSubmission.email}
+                    </a>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedSubmission.email);
+                        alert('Email copied to clipboard!');
+                      }}
+                      className="px-3 py-1 text-sm text-primary-600 hover:text-primary-800 border border-primary-300 rounded hover:bg-primary-50 transition-colors"
+                      title="Copy email"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
@@ -411,8 +438,8 @@ function Recruiter({ walletConnected, walletAddress }) {
                   <div>
                     <label className="text-sm font-medium text-gray-700">Bucket</label>
                     <div className="mt-1">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBucketBadge(selectedSubmission.bucket).color}`}>
-                        {getBucketBadge(selectedSubmission.bucket).text}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBucketFromScore(selectedSubmission.score).color}`}>
+                        {getBucketFromScore(selectedSubmission.score).text}
                       </span>
                     </div>
                   </div>
@@ -432,7 +459,7 @@ function Recruiter({ walletConnected, walletAddress }) {
                   <label className="text-sm font-medium text-gray-700">Transaction Hash</label>
                   <div className="mt-1">
                     <a 
-                      href={`https://sepolia.etherscan.io/tx/${selectedSubmission.tx_hash}`}
+                      href={`https://sepolia.etherscan.io/tx/${selectedSubmission.tx_hash.startsWith('0x') ? selectedSubmission.tx_hash : '0x' + selectedSubmission.tx_hash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center text-sm font-mono text-primary-600 hover:text-primary-700 bg-gray-100 px-3 py-1 rounded"

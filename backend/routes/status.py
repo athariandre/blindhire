@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from services.blockchain_client import verify_evaluation
+from services.blockchain_service import verify_evaluation
 from services.db import get_submission
 
 router = APIRouter()
@@ -15,7 +15,8 @@ async def get_status(submission_id: str = Query(...)):
         submission_id,
         submission["resume_hash"],
         submission["model_hash"],
-        submission["score_hash"]
+        submission["score_hash"],
+        submission.get("job_id")
     )
 
     return {
