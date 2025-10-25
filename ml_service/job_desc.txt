@@ -1,0 +1,6 @@
+We are seeking a software engineer skilled in Python, SQL, and machine learning.
+Experience with cloud infrastructure is a plus. The ideal candidate will have
+experience with data structures, algorithms, and building scalable systems.
+Knowledge of React, JavaScript, and modern web frameworks is valuable.
+Strong problem-solving skills and ability to work in a collaborative environment
+are essential. Bachelor's degree in Computer Science or related field preferred.
