@@ -1,0 +1,39 @@
+{
+  "name": "blindhire-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for BlindHire - Provably fair AI resume screening",
+  "main": "hardhat.config.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run deploy.js --network localhost",
+    "deploy:sepolia": "hardhat run deploy.js --network sepolia",
+    "node": "hardhat node",
+    "clean": "hardhat clean",
+    "verify": "hardhat verify",
+    "size": "hardhat size-contracts",
+    "coverage": "hardhat coverage"
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "hardhat",
+    "smart-contracts",
+    "solidity",
+    "blindhire",
+    "resume-screening"
+  ],
+  "author": "BlindHire Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0",
+    "dotenv": "^16.3.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
