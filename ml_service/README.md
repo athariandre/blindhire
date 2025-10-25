@@ -97,7 +97,7 @@ Extracts top terms from a resume.
 
 ## Environment Variables
 
-- `ML_USE_FALLBACK`: Set to `true` to use TF-IDF fallback instead of downloading the transformer model (useful for testing in restricted environments)
+- `ML_USE_FALLBACK`: Set to `true` to use TF-IDF fallback instead of downloading the transformer model (useful for testing in restricted environments). Default is `false` (production mode with full transformer model).
 
 ## Decision Thresholds
 
@@ -140,14 +140,19 @@ ml_service/
 
 ## Production Deployment
 
-For production use with the full transformer model:
+For production use with the full transformer model (default mode):
 
 ```bash
-# Ensure internet access for model download
-export ML_USE_FALLBACK=false
-
-# Start the service
+# The service will automatically download and cache the model on first startup
 python app.py
 ```
 
-The service will automatically download and cache the sentence-transformers model on first startup.
+Or explicitly set the environment variable:
+
+```bash
+# Explicitly use production mode
+export ML_USE_FALLBACK=false
+python app.py
+```
+
+The service will automatically download and cache the sentence-transformers model on first startup when internet access is available.

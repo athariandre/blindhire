@@ -6,6 +6,7 @@ from typing import Optional
 from parser import anonymize_resume, extract_top_terms
 from vectorizer import compute_similarity, get_model_identifier, load_model
 from hashing import compute_hashes
+from config import USE_FALLBACK, get_model_name
 
 
 # initialize fastapi app
@@ -130,9 +131,8 @@ async def health():
     """
     Health check endpoint used by the backend to verify model readiness.
     """
-    use_fallback = os.environ.get('ML_USE_FALLBACK', 'true').lower() == 'true'
-    model_name = "sentence-transformers/all-MiniLM-L6-v2"
-    if use_fallback:
+    model_name = f"sentence-transformers/{get_model_name()}"
+    if USE_FALLBACK:
         model_name += " (using TF-IDF fallback for testing)"
     
     return HealthResponse(

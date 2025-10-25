@@ -3,11 +3,11 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 import os
+from config import USE_FALLBACK, get_model_name
 
 
 # global model instance for efficiency
 model = None
-USE_FALLBACK = os.environ.get('ML_USE_FALLBACK', 'true').lower() == 'true'
 tfidf_vectorizer = None
 
 
@@ -68,5 +68,6 @@ def compute_similarity(resume_text: str, job_text: str) -> float:
 def get_model_identifier() -> str:
     """
     Return the model identifier for consistent hashing
+    Reflects the actual model being used (transformer or fallback)
     """
-    return "all-MiniLM-L6-v2"
+    return get_model_name()
