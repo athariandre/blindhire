@@ -1,0 +1,14 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "deployer": "0xf98E312DF1c7c19fe3e4c8E8aFf602F8bdfe86eF",
+  "contracts": {
+    "JobFactory": {
+      "address": "0x04E2AF7018Eada81e583425A4eB6Da6b1f116c7d",
+      "version": "1.0.0",
+      "deploymentTx": "0xe6396104c0933a4ae2b5e3f79918e6d7e2dbac638cc89aaeb57f22c054c450ea",
+      "blockNumber": null,
+      "timestamp": "2025-10-25T19:08:13.901Z"
+    }
+  }
+}
