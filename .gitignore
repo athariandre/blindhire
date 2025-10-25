@@ -31,4 +31,5 @@ contracts/cache/
 
 # Misc
 *.env
+*.pdf
 EOF
