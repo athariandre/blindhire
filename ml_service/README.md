@@ -49,9 +49,13 @@ Analyzes a resume against a job description.
 ```json
 {
   "resume_text": "Resume content here...",
-  "job_id": "JOB-2025-001"
+  "job_id": "JOB-2025-001",
+  "auto_pass_threshold": 0.75,
+  "auto_fail_threshold": 0.3
 }
 ```
+
+Note: `auto_pass_threshold` and `auto_fail_threshold` are optional. If not provided, defaults to 0.75 and 0.3 respectively.
 
 **Response:**
 ```json
@@ -98,12 +102,16 @@ Extracts top terms from a resume.
 ## Environment Variables
 
 - `ML_USE_FALLBACK`: Set to `true` to use TF-IDF fallback instead of downloading the transformer model (useful for testing in restricted environments). Default is `false` (production mode with full transformer model).
+- `GEMINI_API_KEY`: Google Gemini API key for LLM-based resume anonymization. If not set, falls back to regex-based anonymization.
 
 ## Decision Thresholds
 
-- **auto_pass**: similarity_score >= 0.75
-- **auto_fail**: similarity_score <= 0.3
-- **review**: 0.3 < similarity_score < 0.75
+Decision thresholds are now configurable per request via the API:
+- **auto_pass**: similarity_score >= auto_pass_threshold (default: 0.75)
+- **auto_fail**: similarity_score <= auto_fail_threshold (default: 0.3)
+- **review**: auto_fail_threshold < similarity_score < auto_pass_threshold
+
+Job listings can specify custom thresholds based on their requirements.
 
 ## Testing
 

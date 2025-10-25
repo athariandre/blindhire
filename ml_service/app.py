@@ -31,6 +31,9 @@ async def startup_event():
 class ParseScoreRequest(BaseModel):
     resume_text: str
     job_id: str
+    # Optional thresholds for decision making (if not provided, use defaults)
+    auto_pass_threshold: Optional[float] = 0.75
+    auto_fail_threshold: Optional[float] = 0.3
 
 
 class ParseScoreResponse(BaseModel):
@@ -58,8 +61,11 @@ class HealthResponse(BaseModel):
 def load_job_description(job_id: str) -> str:
     """
     Load job description from file based on job_id
-    For now, using a single job description file
+    
+    TODO: Replace this with database or on-chain storage
+    For now, using a single job description file as a placeholder
     """
+    print("WARNING: Using placeholder job description loader. Job descriptions should be stored in database or on-chain.")
     try:
         with open('job_desc.txt', 'r') as f:
             return f.read().strip()
@@ -67,13 +73,21 @@ def load_job_description(job_id: str) -> str:
         raise HTTPException(status_code=404, detail=f"Job description not found for job_id: {job_id}")
 
 
-def determine_decision(similarity_score: float) -> str:
+def determine_decision(similarity_score: float, auto_pass_threshold: float = 0.75, auto_fail_threshold: float = 0.3) -> str:
     """
-    Determine decision category based on similarity score
+    Determine decision category based on similarity score and configurable thresholds
+    
+    Args:
+        similarity_score: The computed similarity score
+        auto_pass_threshold: Threshold for automatic pass (default 0.75)
+        auto_fail_threshold: Threshold for automatic fail (default 0.3)
+    
+    Returns:
+        Decision category: "auto_pass", "auto_fail", or "review"
     """
-    if similarity_score >= 0.75:
+    if similarity_score >= auto_pass_threshold:
         return "auto_pass"
-    elif similarity_score <= 0.3:
+    elif similarity_score <= auto_fail_threshold:
         return "auto_fail"
     else:
         return "review"
@@ -84,6 +98,10 @@ async def parse_and_score(request: ParseScoreRequest):
     """
     Main endpoint that accepts a resume text and job ID, computes similarity,
     determines decision category, and returns hashes.
+    
+    Thresholds for decision making can be customized per request via:
+    - auto_pass_threshold: Score >= this value results in "auto_pass" (default: 0.75)
+    - auto_fail_threshold: Score <= this value results in "auto_fail" (default: 0.3)
     """
     try:
         # load job description
@@ -95,8 +113,12 @@ async def parse_and_score(request: ParseScoreRequest):
         # compute similarity
         similarity_score = compute_similarity(anonymized_resume, job_description)
         
-        # determine decision
-        decision = determine_decision(similarity_score)
+        # determine decision using configurable thresholds
+        decision = determine_decision(
+            similarity_score,
+            auto_pass_threshold=request.auto_pass_threshold,
+            auto_fail_threshold=request.auto_fail_threshold
+        )
         
         # get model identifier
         model_id = get_model_identifier()
