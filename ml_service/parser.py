@@ -2,17 +2,22 @@ import re
 import unicodedata
 import os
 import google.generativeai as genai
+from config import get_gemini_api_key, GEMINI_API_KEY
 
 
 # Configure Google Gemini API
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    # Use Gemini 1.5 Flash for fast and efficient processing
-    gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-else:
-    gemini_model = None
-    print("WARNING: GEMINI_API_KEY not set. Using fallback anonymization method.")
+gemini_available = False
+try:
+    api_key = get_gemini_api_key()
+    if api_key:
+        genai.configure(api_key=api_key)
+        print("✅ Gemini API configured successfully")
+        gemini_available = True
+    else:
+        print("WARNING: No Gemini API key found. Using fallback anonymization method.")
+except ValueError as e:
+    gemini_available = False
+    print(f"WARNING: {e}. Using fallback anonymization method.")
 
 
 def anonymize_resume(text: str) -> str:
@@ -34,9 +39,10 @@ def anonymize_resume(text: str) -> str:
     # lowercase all text
     text = text.lower()
     
-    if gemini_model and GEMINI_API_KEY:
+    if gemini_available:
         # Use Gemini LLM for intelligent anonymization
         try:
+            model = genai.GenerativeModel('models/gemini-2.5-flash')
             prompt = f"""You are a resume anonymization system designed to remove personally identifiable information while preserving technical skills, project names, and framework names.
 
 CRITICAL INSTRUCTIONS:
@@ -56,7 +62,7 @@ Resume text to anonymize:
 
 Return the anonymized resume text:"""
 
-            response = gemini_model.generate_content(prompt)
+            response = model.generate_content(prompt)
             anonymized_text = response.text.strip()
             
             # Ensure it's still lowercase and normalized
