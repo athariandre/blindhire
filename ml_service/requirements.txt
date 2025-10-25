@@ -5,3 +5,7 @@ numpy
 PyPDF2
 scikit-learn
 google-generativeai
+python-dotenv
+pytest
+pytest-asyncio
+httpx
